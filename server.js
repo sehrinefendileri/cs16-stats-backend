@@ -13,6 +13,11 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
+// 🛡️ KRİTİK EKLEME: Beklenmedik bağlantı hatalarında sunucunun çökmesini engeller
+pool.on('error', (err) => {
+  console.error('⚠️ Veritabanı havuzunda beklenmedik hata:', err.message);
+});
+
 // ================= 1. OTOMATİK MAİL SİSTEMİ (Anti-Spam Korumalı) =================
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -79,8 +84,9 @@ app.use((req, res, next) => {
 // ==============================================================================
 
 async function initDB() {
-  const client = await pool.connect();
+  let client;
   try {
+    client = await pool.connect();
     await client.query(`
       CREATE TABLE IF NOT EXISTS players (
         id SERIAL PRIMARY KEY, nick TEXT UNIQUE, total_kills INT DEFAULT 0, total_deaths INT DEFAULT 0,
@@ -93,7 +99,9 @@ async function initDB() {
       );
     `);
     console.log("⚔️ Arşiv Sistemi Aktif.");
-  } finally { client.release(); }
+  } catch (err) {
+    console.error("Veritabanı başlatma hatası:", err.message);
+  } finally { if (client) client.release(); }
 }
 
 let isRunning = false;
@@ -151,12 +159,14 @@ async function fetchPlayers(retry = 2) {
 async function fetchAndSave() {
   if (isRunning) return;
   isRunning = true;
-  const client = await pool.connect();
+  let client;
   try {
     const players = await fetchPlayers();
     if (!players || players.length < 5) throw new Error("Veri Çekilemedi veya Yetersiz Veri");
     const sortedPlayers = [...players].sort((a, b) => a.nick.localeCompare(b.nick));
     const newHash = crypto.createHash("md5").update(JSON.stringify(sortedPlayers)).digest("hex");
+    
+    client = await pool.connect();
     const lastHashRes = await client.query(`SELECT id, last_hash FROM system_log ORDER BY id DESC LIMIT 1`);
     if (lastHashRes.rows[0]?.last_hash === newHash) return; 
 
@@ -181,7 +191,7 @@ async function fetchAndSave() {
     console.error("Motor Hatası:", err.message);
     sendAlertMail(err.message); 
   } 
-  finally { client.release(); isRunning = false; }
+  finally { if (client) client.release(); isRunning = false; }
 }
 
 // ================= 4. ARAYÜZ (ANALYTICS DAHİL) =================
