@@ -51,7 +51,7 @@ const BASE_URL = "https://panel25.oyunyoneticisi.com/rank/rank_all.php?ip=95.173
 let cache = {};
 const CACHE_LIMIT = 50;
 const ADMIN_KEY = process.env.ADMIN_KEY || crypto.randomBytes(20).toString('hex'); 
-const logoUrl = "https://raw.githubusercontent.com/sehrinefendilerics16/cs16-stats-backend/main/background.jpeg?v=3";
+const logoUrl = "https://sehrinefendilerics16.github.io/banner.jpg";
 
 // ================= 2. GÜVENLİK: RATE LIMITER (Spam Koruması) =================
 let rateMap = new Map();
