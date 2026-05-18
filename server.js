@@ -5,6 +5,14 @@ const crypto = require("crypto");
 const { Pool } = require("pg");
 const nodemailer = require("nodemailer");
 
+// 🛡️ YENİ ÖZELLİK 1: Çevresel Değişken (Env) Kontrolü (Fail Fast)
+const missingEnvs = ['DATABASE_URL', 'EMAIL_PASS', 'ADMIN_KEY'].filter(key => !process.env[key]);
+if (missingEnvs.length > 0) {
+  console.error(`🚨 KRİTİK HATA: Eksik çevresel değişkenler (Environment Variables) bulundu: ${missingEnvs.join(', ')}`);
+  console.error("Lütfen Render.com panelinden bu değişkenleri ekleyin. Sunucu durduruluyor.");
+  process.exit(1);
+}
+
 const app = express();
 app.set('trust proxy', 1); // 🛡️ Fix 2: Sahte IP (x-forwarded-for spoof) koruması
 
@@ -51,7 +59,7 @@ const sendAlertMail = async (errorMsg) => {
 const BASE_URL = "https://panel25.oyunyoneticisi.com/rank/rank_all.php?ip=95.173.173.81";
 let cache = {};
 const CACHE_LIMIT = 50;
-const ADMIN_KEY = process.env.ADMIN_KEY || crypto.randomBytes(20).toString('hex'); 
+const ADMIN_KEY = process.env.ADMIN_KEY; 
 
 // 🏰 GÜNCELLEME: Yeni kullanıcı adına göre görsel yolu düzeltildi
 const logoUrl = "https://sehrinefendileri.github.io/banner.jpg";
@@ -242,6 +250,14 @@ app.get("/", async (req, res) => {
       </script>
       <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>SEHRIN EFENDILERI</title>
+      
+      <meta property="og:title" content="ŞEHRİN EFENDİLERİ | CS 1.6 İstatistik">
+      <meta property="og:description" content="Sunucumuzun tüm zamanlar skor tabloları, K/D oranları ve detaylı istatistikleri. Sıralamanı hemen kontrol et!">
+      <meta property="og:image" content="${logoUrl}">
+      <meta property="og:url" content="https://cs16-stats.onrender.com/">
+      <meta property="og:type" content="website">
+      <meta name="theme-color" content="#38bdf8">
+      
       <link rel="icon" href="${logoUrl}">
       <style>
       body{ background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.75)), url('${logoUrl}') no-repeat center center fixed; background-size: cover; color:white; font-family:'Segoe UI',sans-serif; margin:0; padding-bottom:50px; overflow-x:hidden; }
@@ -261,9 +277,22 @@ app.get("/", async (req, res) => {
       .table-container{ width:100%; overflow-x:auto; background:rgba(15, 23, 42, 0.95); border-radius:8px; border: 1px solid #1e293b; }
       table{width:100%; border-collapse:collapse; table-layout: fixed; min-width: 800px;}
       th, td { border: 1px solid #1e293b; padding: 12px 10px; text-align: center; font-size: 15px; }
-      th { background:#020617; color:#38bdf8; text-transform:uppercase; font-size:13px; letter-spacing: 1px; }
+      
+      /* ✨ UI/UX EKLEMESİ: Tıklanabilir Sütun Başlıkları */
+      th.sortable { background:#020617; color:#38bdf8; text-transform:uppercase; font-size:13px; letter-spacing: 1px; cursor: pointer; position: relative; padding-right: 20px; transition: 0.2s; user-select: none; }
+      th.sortable:hover { background: rgba(56, 189, 248, 0.15); color: #fff; }
+      th.sortable::after { content: '↕'; position: absolute; right: 8px; color: #64748b; font-size: 14px; }
+      th.sortable.asc::after { content: '▲'; color: #38bdf8; }
+      th.sortable.desc::after { content: '▼'; color: #38bdf8; }
+
       tr:hover td { background: rgba(56, 189, 248, 0.2) !important; }
       tr:nth-child(even) td { background: rgba(30, 41, 59, 0.4); }
+      
+      /* ✨ UI/UX EKLEMESİ: Podyum Efektleri (İlk 3 Sıra) */
+      .row-rank-1 { background: rgba(250, 204, 21, 0.12) !important; border-left: 4px solid #facc15; }
+      .row-rank-2 { background: rgba(226, 232, 240, 0.1) !important; border-left: 4px solid #e2e8f0; }
+      .row-rank-3 { background: rgba(253, 186, 116, 0.1) !important; border-left: 4px solid #fdba74; }
+      
       .player-nick{ color:#38bdf8; font-weight:600; text-align: left; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
       .rank-badge { display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; min-width: 50px; border-radius: 8px; font-weight: 800; font-size: 14px; gap: 4px; }
       .rank-1 { background: linear-gradient(135deg, #facc15, #eab308); color: #422006; border: 1px solid #fef08a; }
@@ -291,15 +320,30 @@ app.get("/", async (req, res) => {
           <button type="submit">Ara</button>
           ${search ? `<a href="/" class="reset-btn">↩ Tüm Listeye Dön</a>` : ''}
         </form>
-        <div class="table-container"><table><thead><tr><th>#</th><th>NICK</th><th>ÖLDÜRME</th><th>ÖLÜM</th><th>K/D</th><th>HASAR</th><th>SKOR</th></tr></thead><tbody>
+        <div class="table-container"><table>
+        <thead>
+          <tr>
+            <th class="sortable desc">#</th>
+            <th class="sortable">NICK</th>
+            <th class="sortable">ÖLDÜRME</th>
+            <th class="sortable">ÖLÜM</th>
+            <th class="sortable">K/D</th>
+            <th class="sortable">HASAR</th>
+            <th class="sortable">SKOR</th>
+          </tr>
+        </thead>
+        <tbody>
         ${players.map((p) => {
           const kd = (p.total_kills / Math.max(p.total_deaths, 1));
           const r = parseInt(p.real_rank);
           let rankDisplay = `<b>${r}</b>`;
-          if (r === 1) rankDisplay = `<span class="rank-badge rank-1">🥇 1</span>`;
-          else if (r === 2) rankDisplay = `<span class="rank-badge rank-2">🥈 2</span>`;
-          else if (r === 3) rankDisplay = `<span class="rank-badge rank-3">🥉 3</span>`;
-          return `<tr><td>${rankDisplay}</td><td><span class="player-nick">${escapeHTML(p.nick)}</span></td><td>${p.total_kills}</td><td>${p.total_deaths}</td><td>${kd.toFixed(2)}</td><td>${p.total_damage}</td><td><b style="color:#38bdf8;">${Math.round(p.score)}</b></td></tr>`;
+          let rowClass = '';
+          
+          if (r === 1) { rankDisplay = `<span class="rank-badge rank-1">🥇 1</span>`; rowClass = 'row-rank-1'; }
+          else if (r === 2) { rankDisplay = `<span class="rank-badge rank-2">🥈 2</span>`; rowClass = 'row-rank-2'; }
+          else if (r === 3) { rankDisplay = `<span class="rank-badge rank-3">🥉 3</span>`; rowClass = 'row-rank-3'; }
+          
+          return `<tr class="${rowClass}"><td>${rankDisplay}</td><td><span class="player-nick">${escapeHTML(p.nick)}</span></td><td>${p.total_kills}</td><td>${p.total_deaths}</td><td>${kd.toFixed(2)}</td><td>${p.total_damage}</td><td><b style="color:#38bdf8;">${Math.round(p.score)}</b></td></tr>`;
         }).join('')}
         </tbody></table></div>
         <div class="pagination">
@@ -307,7 +351,47 @@ app.get("/", async (req, res) => {
           <span>Sayfa ${page} / ${totalPages}</span>
           ${page < totalPages ? `<a href="/?page=${page + 1}${search ? '&search='+search : ''}">Sonraki Sayfa »</a>` : ''}
         </div>
-      </div></body></html>`;
+      </div>
+      
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const headers = document.querySelectorAll('th.sortable');
+          headers.forEach(th => {
+            th.addEventListener('click', function() {
+              const table = th.closest('table');
+              const tbody = table.querySelector('tbody');
+              const rows = Array.from(tbody.querySelectorAll('tr'));
+              const index = Array.from(th.parentNode.children).indexOf(th);
+              const isAscending = th.classList.contains('asc');
+
+              // Okları temizle ve yeni oku ekle
+              headers.forEach(h => h.classList.remove('asc', 'desc'));
+              th.classList.add(isAscending ? 'desc' : 'asc');
+
+              // Satırları sırala
+              rows.sort((a, b) => {
+                const aText = a.children[index].innerText.trim();
+                const bText = b.children[index].innerText.trim();
+                
+                // Sayısal değerleri ayıkla (K/D, Hasar vb. için)
+                const aNum = parseFloat(aText.replace(/[^0-9.-]+/g,""));
+                const bNum = parseFloat(bText.replace(/[^0-9.-]+/g,""));
+
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                  return isAscending ? aNum - bNum : bNum - aNum;
+                }
+                // Metin (Nick) sıralaması için
+                return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+              });
+
+              // Sıralanmış satırları tabloya geri ekle
+              rows.forEach(row => tbody.appendChild(row));
+            });
+          });
+        });
+      </script>
+      
+      </body></html>`;
     cache[cacheKey] = { data: html, time: Date.now() }; res.send(html);
   } catch (err) { res.status(500).send("Hata."); }
 });
