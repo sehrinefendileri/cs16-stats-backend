@@ -260,66 +260,108 @@ app.get("/", async (req, res) => {
       
       <link rel="icon" href="${logoUrl}">
       <style>
-      body{ background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.75)), url('${logoUrl}') no-repeat center center fixed; background-size: cover; color:white; font-family:'Segoe UI',sans-serif; margin:0; padding-bottom:50px; overflow-x:hidden; }
-      .header-container{text-align:center;padding:30px 10px;background:rgba(2, 6, 23, 0.85);}
-      .main-title{font-size:clamp(22px,5vw,42px);font-weight:900;letter-spacing:2px;margin:0;text-shadow:0 0 15px rgba(56,189,248,0.5);}
-      .ip-title{color:#38bdf8;font-size:clamp(16px,3vw,26px);margin:5px 0;}
+      body{ background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('${logoUrl}') no-repeat center center fixed; background-size: cover; color:white; font-family:'Segoe UI',sans-serif; margin:0; padding-bottom:50px; overflow-x:hidden; }
+      .header-container{text-align:center;padding:40px 10px 20px;background:rgba(2, 6, 23, 0.7);}
+      .main-title{font-size:clamp(28px,6vw,48px);font-weight:900;letter-spacing:3px;margin:0;text-shadow:0 0 20px rgba(56,189,248,0.6); color: #fff;}
+      .ip-title{color:#38bdf8;font-size:clamp(18px,4vw,28px);margin:10px 0; font-weight: 600;}
       .content-wrapper{width:98%;max-width:1400px;margin:0 auto;}
-      .ig-link{text-align:center;margin:15px 0;}.ig-link a{color:#e1306c;text-decoration:none;font-weight:bold;background:rgba(2, 6, 23, 0.9);padding:10px 20px;border-radius:6px;border:1px solid #e1306c;}
-      .info-box{ text-align:center; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); padding: 18px; margin: 20px auto; max-width: 1200px; border-radius: 10px; font-size: 16px; }
-      .info-box span { color: #facc15; font-weight: bold; font-size: 18px; }
-      .update-badge { text-align: center; margin: 0 auto 30px; font-size: 15px; color: #e2e8f0; background: rgba(30, 41, 59, 0.85); display: table; padding: 10px 25px; border-radius: 30px; border: 1px solid rgba(56, 189, 248, 0.3); }
-      .desktop-tip { display: none; text-align: center; background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.4); padding: 12px 15px; margin: 0 auto 20px; border-radius: 8px; font-size: 14px; color: #fde047; max-width: 95%; }
-      .search{text-align:center;margin:25px 0; display:flex; justify-content:center; gap:8px; flex-wrap: wrap;}
-      input{padding:14px;border-radius:6px;border:1px solid #334155;width:50%;background:#1e293b;color:white;outline:none;font-size:16px;}
-      button{padding:14px 30px;border-radius:6px;background:#38bdf8;color:white;font-weight:bold;border:none;cursor:pointer;font-size:16px;}
-      .reset-btn { padding: 14px 20px; border-radius: 6px; background: rgba(30, 41, 59, 0.9); border: 1px solid #38bdf8; color: #38bdf8; font-weight: bold; text-decoration: none; font-size: 15px; display:flex; align-items:center; justify-content:center;}
-      .table-container{ width:100%; overflow-x:auto; background:rgba(15, 23, 42, 0.95); border-radius:8px; border: 1px solid #1e293b; }
-      table{width:100%; border-collapse:collapse; table-layout: fixed; min-width: 800px;}
-      th, td { border: 1px solid #1e293b; padding: 12px 10px; text-align: center; font-size: 15px; }
       
-      /* ✨ UI/UX EKLEMESİ: Tıklanabilir Sütun Başlıkları */
-      th.sortable { background:#020617; color:#38bdf8; text-transform:uppercase; font-size:13px; letter-spacing: 1px; cursor: pointer; position: relative; padding-right: 20px; transition: 0.2s; user-select: none; }
+      /* ✨ YENİ TASARIM: Dikkat Çekici Durum Paneli */
+      .status-board { 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 15px; 
+        background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9)); 
+        border: 2px solid #38bdf8; 
+        border-radius: 16px; 
+        padding: 25px; 
+        margin: 30px auto; 
+        max-width: 900px; 
+        box-shadow: 0 0 25px rgba(56, 189, 248, 0.2), inset 0 0 15px rgba(0,0,0,0.5);
+      }
+      .status-item { 
+        font-size: 18px; 
+        text-align: center; 
+        color: #e2e8f0; 
+      }
+      .status-item span { 
+        color: #facc15; 
+        font-weight: 800; 
+        font-size: 20px; 
+        text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+      }
+      .status-item.update-time span {
+        color: #34d399;
+        text-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
+      }
+
+      .desktop-tip { display: none; text-align: center; background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.4); padding: 12px 15px; margin: 0 auto 20px; border-radius: 8px; font-size: 14px; color: #fde047; max-width: 95%; }
+      .search{text-align:center;margin:30px 0; display:flex; justify-content:center; gap:10px; flex-wrap: wrap;}
+      input{padding:16px;border-radius:8px;border:2px solid #334155;width:55%;background:rgba(30, 41, 59, 0.8);color:white;outline:none;font-size:16px; transition: 0.3s;}
+      input:focus { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
+      button{padding:16px 35px;border-radius:8px;background: linear-gradient(135deg, #0ea5e9, #0284c7);color:white;font-weight:bold;border:none;cursor:pointer;font-size:16px; transition: 0.3s;}
+      button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(14, 165, 233, 0.4); }
+      .reset-btn { padding: 16px 25px; border-radius: 8px; background: rgba(30, 41, 59, 0.9); border: 2px solid #ef4444; color: #ef4444; font-weight: bold; text-decoration: none; font-size: 15px; display:flex; align-items:center; justify-content:center; transition: 0.3s;}
+      .reset-btn:hover { background: #ef4444; color: white; }
+
+      .table-container{ width:100%; overflow-x:auto; background:rgba(15, 23, 42, 0.95); border-radius:12px; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
+      table{width:100%; border-collapse:collapse; table-layout: fixed; min-width: 800px;}
+      th, td { border-bottom: 1px solid #1e293b; padding: 16px 10px; text-align: center; font-size: 15px; }
+      
+      th.sortable { background: #020617; color:#38bdf8; text-transform:uppercase; font-size:14px; font-weight: 800; letter-spacing: 1px; cursor: pointer; position: relative; padding-right: 20px; transition: 0.2s; user-select: none; border-bottom: 2px solid #334155;}
       th.sortable:hover { background: rgba(56, 189, 248, 0.15); color: #fff; }
       th.sortable::after { content: '↕'; position: absolute; right: 8px; color: #64748b; font-size: 14px; }
       th.sortable.asc::after { content: '▲'; color: #38bdf8; }
       th.sortable.desc::after { content: '▼'; color: #38bdf8; }
 
-      tr:hover td { background: rgba(56, 189, 248, 0.2) !important; }
-      tr:nth-child(even) td { background: rgba(30, 41, 59, 0.4); }
+      tr:hover td { background: rgba(56, 189, 248, 0.15) !important; }
+      tr:nth-child(even) td { background: rgba(30, 41, 59, 0.3); }
       
-      /* ✨ UI/UX EKLEMESİ: Podyum Efektleri (İlk 3 Sıra) */
       .row-rank-1 { background: rgba(250, 204, 21, 0.12) !important; border-left: 4px solid #facc15; }
       .row-rank-2 { background: rgba(226, 232, 240, 0.1) !important; border-left: 4px solid #e2e8f0; }
       .row-rank-3 { background: rgba(253, 186, 116, 0.1) !important; border-left: 4px solid #fdba74; }
       
-      .player-nick{ color:#38bdf8; font-weight:600; text-align: left; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
-      .rank-badge { display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; min-width: 50px; border-radius: 8px; font-weight: 800; font-size: 14px; gap: 4px; }
+      .player-nick{ color:#e0f2fe; font-weight:600; text-align: left; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; font-size: 16px;}
+      .rank-badge { display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; min-width: 55px; border-radius: 8px; font-weight: 900; font-size: 15px; gap: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
       .rank-1 { background: linear-gradient(135deg, #facc15, #eab308); color: #422006; border: 1px solid #fef08a; }
       .rank-2 { background: linear-gradient(135deg, #e2e8f0, #94a3b8); color: #0f172a; border: 1px solid #f8fafc; }
       .rank-3 { background: linear-gradient(135deg, #fdba74, #ea580c); color: #431407; border: 1px solid #fed7aa; }
-      .pagination { display: flex; justify-content: center; gap: 15px; margin: 30px 0; align-items: center; }
-      .pagination a { background: rgba(30, 41, 59, 0.9); border: 1px solid #38bdf8; color: #38bdf8; padding: 12px 25px; border-radius: 6px; font-weight: bold; text-decoration: none; }
-      .pagination span { background: #020617; border: 1px solid #1e293b; color: white; padding: 12px 25px; border-radius: 6px; font-weight: bold; }
+      
+      .pagination { display: flex; justify-content: center; gap: 15px; margin: 40px 0; align-items: center; }
+      .pagination a { background: rgba(30, 41, 59, 0.9); border: 2px solid #38bdf8; color: #38bdf8; padding: 12px 25px; border-radius: 8px; font-weight: bold; text-decoration: none; transition: 0.3s;}
+      .pagination a:hover { background: #38bdf8; color: #020617; }
+      .pagination span { background: #020617; border: 2px solid #1e293b; color: white; padding: 12px 25px; border-radius: 8px; font-weight: bold; }
+      
       @media (max-width: 768px) {
+        .status-board { padding: 15px; margin: 20px 10px; }
+        .status-item { font-size: 15px; }
+        .status-item span { font-size: 16px; }
         .desktop-tip { display: block; }
-        th:nth-child(2), td:nth-child(2) { position: sticky !important; left: 0 !important; z-index: 99 !important; background: #0f172a !important; width: 130px !important; box-shadow: 2px 0 5px rgba(0,0,0,0.5); }
+        input { width: 100%; }
+        th:nth-child(2), td:nth-child(2) { position: sticky !important; left: 0 !important; z-index: 99 !important; background: #0f172a !important; width: 140px !important; box-shadow: 3px 0 10px rgba(0,0,0,0.6); border-right: 1px solid #334155;}
         th:nth-child(2) { z-index: 100 !important; }
-        tr:hover td:nth-child(2) { background: #1a243a !important; }
+        tr:hover td:nth-child(2) { background: #1e293b !important; }
         .pagination { flex-direction: column; width: 90%; margin: 20px auto; gap: 10px; }
       }
       </style></head><body>
       <div class="header-container"><h1 class="main-title">SEHRIN EFENDILERI</h1><div class="ip-title">(95.173.173.81)</div></div>
       <div class="content-wrapper">
-        <div class="ig-link"><a href="https://instagram.com/sehrinefendilerics16" target="_blank">📷 Instagram: @sehrinefendilerics16</a></div>
-        <div class="info-box">⚠️ Veriler <span>06.04.2026</span> tarihinden itibaren kaydedilmektedir.</div>
-        <div class="update-badge">Sıralama verileri en son <b>${lastUpdateDate}</b> tarihinde güncellendi.</div>
+        
+        <div class="status-board">
+          <div class="status-item">⚠️ Arşiv verileri <span>06.04.2026</span> tarihinden itibaren kalıcı olarak kaydedilmektedir.</div>
+          <div class="status-item update-time">Sıralama verileri en son <span>${lastUpdateDate}</span> tarihinde güncellendi.</div>
+        </div>
+
         <div class="desktop-tip">💡 <b>İpucu:</b> Verilere daha detaylı bakabilmek için tarayıcı ayarlarından <b>"Masaüstü sitesi"</b> seçeneğini işaretleyebilirsiniz.</div>
+        
         <form class="search" method="GET">
-          <input name="search" placeholder="Nick giriniz..." value="${escapeHTML(search)}">
-          <button type="submit">Ara</button>
-          ${search ? `<a href="/" class="reset-btn">↩ Tüm Listeye Dön</a>` : ''}
+          <input name="search" placeholder="Aranacak nicki giriniz..." value="${escapeHTML(search)}">
+          <button type="submit">Oyuncu Ara</button>
+          ${search ? `<a href="/" class="reset-btn">Temizle</a>` : ''}
         </form>
+
         <div class="table-container"><table>
         <thead>
           <tr>
@@ -343,9 +385,10 @@ app.get("/", async (req, res) => {
           else if (r === 2) { rankDisplay = `<span class="rank-badge rank-2">🥈 2</span>`; rowClass = 'row-rank-2'; }
           else if (r === 3) { rankDisplay = `<span class="rank-badge rank-3">🥉 3</span>`; rowClass = 'row-rank-3'; }
           
-          return `<tr class="${rowClass}"><td>${rankDisplay}</td><td><span class="player-nick">${escapeHTML(p.nick)}</span></td><td>${p.total_kills}</td><td>${p.total_deaths}</td><td>${kd.toFixed(2)}</td><td>${p.total_damage}</td><td><b style="color:#38bdf8;">${Math.round(p.score)}</b></td></tr>`;
+          return `<tr class="${rowClass}"><td>${rankDisplay}</td><td><span class="player-nick">${escapeHTML(p.nick)}</span></td><td>${p.total_kills}</td><td>${p.total_deaths}</td><td>${kd.toFixed(2)}</td><td>${p.total_damage}</td><td><b style="color:#38bdf8; font-size: 16px;">${Math.round(p.score)}</b></td></tr>`;
         }).join('')}
         </tbody></table></div>
+        
         <div class="pagination">
           ${page > 1 ? `<a href="/?page=${page - 1}${search ? '&search='+search : ''}">« Önceki Sayfa</a>` : ''}
           <span>Sayfa ${page} / ${totalPages}</span>
@@ -364,27 +407,22 @@ app.get("/", async (req, res) => {
               const index = Array.from(th.parentNode.children).indexOf(th);
               const isAscending = th.classList.contains('asc');
 
-              // Okları temizle ve yeni oku ekle
               headers.forEach(h => h.classList.remove('asc', 'desc'));
               th.classList.add(isAscending ? 'desc' : 'asc');
 
-              // Satırları sırala
               rows.sort((a, b) => {
                 const aText = a.children[index].innerText.trim();
                 const bText = b.children[index].innerText.trim();
                 
-                // Sayısal değerleri ayıkla (K/D, Hasar vb. için)
                 const aNum = parseFloat(aText.replace(/[^0-9.-]+/g,""));
                 const bNum = parseFloat(bText.replace(/[^0-9.-]+/g,""));
 
                 if (!isNaN(aNum) && !isNaN(bNum)) {
                   return isAscending ? aNum - bNum : bNum - aNum;
                 }
-                // Metin (Nick) sıralaması için
                 return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
               });
 
-              // Sıralanmış satırları tabloya geri ekle
               rows.forEach(row => tbody.appendChild(row));
             });
           });
@@ -412,7 +450,6 @@ const adminLayout = (title, message, subMessage) => `
   </body></html>`;
 
 app.get("/status", async (req, res) => {
-  // 🛡️ GÜNCELLEME: Şifre artık URL'den değil Header'dan (x-api-key) kontrol ediliyor.
   if (req.headers['x-api-key'] !== ADMIN_KEY) return res.status(403).send("Erişim Reddedildi");
   try {
     const r = await pool.query(`SELECT last_fetch FROM system_log ORDER BY id DESC LIMIT 1`);
@@ -421,12 +458,10 @@ app.get("/status", async (req, res) => {
   } catch (e) { res.status(500).send("Hata"); }
 });
 
-// 🛡️ Fix 6: Admin Endpoint Cooldown (Spam Tıklama Koruması)
 let lastManualUpdate = 0;
-const UPDATE_COOLDOWN = 5 * 60 * 1000; // 5 dakika bekleme süresi
+const UPDATE_COOLDOWN = 5 * 60 * 1000; 
 
 app.get("/force-update", async (req, res) => {
-  // 🛡️ GÜNCELLEME: Şifre artık URL'den değil Header'dan (x-api-key) kontrol ediliyor.
   if (req.headers['x-api-key'] !== ADMIN_KEY) return res.status(403).send("Erişim Reddedildi");
   
   const now = Date.now();
@@ -439,7 +474,7 @@ app.get("/force-update", async (req, res) => {
     ));
   }
 
-  lastManualUpdate = now; // Güvenlik için await'ten önce atanır!
+  lastManualUpdate = now; 
   await fetchAndSave();
   
   res.send(adminLayout("⚙️ İŞLEM BAŞARILI", "✅ Manuel Güncelleme Tetiklendi.", "Veritabanı OyunYöneticisi ile senkronize edildi."));
