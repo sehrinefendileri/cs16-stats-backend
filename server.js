@@ -32,6 +32,8 @@ const sendAlertMail = async (errorMsg) => {
   const now = Date.now();
   if (now - lastMailTime < 3600000) return; // Saatte sadece 1 kez mail atar!
 
+  lastMailTime = now; // 🛡️ DÜZELTME: Mail gitse de gitmese de spam korumasını hemen başlatıyoruz.
+
   const mailOptions = {
     from: '"Şehrin Efendileri Sistem" <leventistemi@gmail.com>',
     to: "leventistemi@gmail.com",
@@ -41,7 +43,6 @@ const sendAlertMail = async (errorMsg) => {
   try { 
     await transporter.sendMail(mailOptions); 
     console.log("📧 Arıza maili başarıyla gönderildi.");
-    lastMailTime = now;
   } catch (e) { 
     console.error("Mail gönderme hatası:", e.message); 
   }
