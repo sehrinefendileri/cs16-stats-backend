@@ -323,7 +323,7 @@ app.get("/", async (req, res) => {
         <div class="table-container"><table>
         <thead>
           <tr>
-            <th class="sortable desc">#</th>
+            <th class="sortable desc">SIRA</th>
             <th class="sortable">NICK</th>
             <th class="sortable">ÖLDÜRME</th>
             <th class="sortable">ÖLÜM</th>
