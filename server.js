@@ -350,7 +350,7 @@ app.get("/", async (req, res) => {
       <div class="content-wrapper">
         
         <div class="status-board">
-          <div class="status-item">⚠️ Arşiv verileri <span>06.04.2026</span> tarihinden itibaren kalıcı olarak kaydedilmektedir.</div>
+          <div class="status-item">⚠️ Veriler <span>06.04.2026</span> tarihinden itibaren kaydedilmektedir.</div>
           <div class="status-item update-time">Sıralama verileri en son <span>${lastUpdateDate}</span> tarihinde güncellendi.</div>
         </div>
 
