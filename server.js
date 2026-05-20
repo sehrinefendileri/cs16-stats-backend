@@ -434,6 +434,30 @@ app.get("/", async (req, res) => {
   } catch (err) { res.status(500).send("Hata."); }
 });
 
+// ================= BETTER STACK HEALTHCHECK ENTEGRASYONU =================
+app.get("/health", async (req, res) => {
+  try {
+    // 1. Veritabanına test sorgusu atarak PostgreSQL erişimini kontrol et
+    await pool.query('SELECT 1');
+    
+    // 2. Her şey yolundaysa 200 OK ve JSON dön
+    res.status(200).json({ 
+      status: "ok", 
+      database: "connected",
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    // 3. Veritabanı veya sunucu hatası varsa 500 dön ve logla
+    console.error("Healthcheck Hatası:", error.message);
+    res.status(500).json({ 
+      status: "error", 
+      database: "disconnected", 
+      error: error.message 
+    });
+  }
+});
+// =========================================================================
+
 // ================= 5. YÖNETİM LİNKLERİ =================
 const adminLayout = (title, message, subMessage) => `
   <html><head><meta charset="UTF-8"><title>${title}</title>
