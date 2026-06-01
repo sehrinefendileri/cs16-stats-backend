@@ -39,8 +39,7 @@ let lastMailTime = 0; // 🛡️ Fix 5: Mail Spam Koruması
 const sendAlertMail = async (errorMsg) => {
   const now = Date.now();
   if (now - lastMailTime < 3600000) return; // Saatte sadece 1 kez mail atar!
-
-  lastMailTime = now; // 🛡️ DÜZELTME: Mail gitse de gitmese de spam korumasını hemen başlatıyoruz.
+  lastMailTime = now; 
 
   const mailOptions = {
     from: '"Şehrin Efendileri Sistem" <leventistemi@gmail.com>',
@@ -55,6 +54,34 @@ const sendAlertMail = async (errorMsg) => {
     console.error("Mail gönderme hatası:", e.message); 
   }
 };
+
+// ================= TELEGRAM BOT SİSTEMİ =================
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+const sendTelegramAlert = async (message) => {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+  try {
+    await axios.post(url, {
+      chat_id: TELEGRAM_CHAT_ID,
+      text: `🚨 SEHRIN EFENDILERI - BİLDİRİM\n\n${message}\n\nZaman: ${new Date().toLocaleString("tr-TR", {timeZone: "Europe/Istanbul"})}`
+    });
+  } catch (e) {
+    console.error("Telegram mesajı gönderilemedi:", e.message);
+  }
+};
+
+// ================= GLOBAL HATA YAKALAYICILAR =================
+let isAlerting = false;
+const criticalErrorHandler = async (type, err) => {
+  console.error(`🚨 KRİTİK HATA (${type}):`, err);
+  if (isAlerting) return;
+  isAlerting = true;
+  try { await sendTelegramAlert(`🚨 ${type}\n\n${err?.stack || err}`); } finally { process.exit(1); }
+};
+process.on('uncaughtException', (err) => criticalErrorHandler('Uncaught Exception', err));
+process.on('unhandledRejection', (reason) => criticalErrorHandler('Unhandled Rejection', reason));
 
 const BASE_URL = "https://panel25.oyunyoneticisi.com/rank/rank_all.php?ip=95.173.173.81";
 let cache = {};
@@ -76,13 +103,11 @@ function rateLimit(req, limit = 60, windowMs = 60000) {
   data.count++; return true;
 }
 
-// Memory Leak Koruması (RateMap Temizleyici)
 function cleanCache() {
   const now = Date.now();
   for (const key in cache) { if (now - cache[key].time > 30000) delete cache[key]; }
   if (Object.keys(cache).length > CACHE_LIMIT) cache = {}; 
   
-  // 🛡️ Fix 3: Kaba balta temizlik yerine, sadece süresi dolan IP'leri sil
   for (const [ip, data] of rateMap.entries()) {
     if (now - data.start > 60000) rateMap.delete(ip);
   }
@@ -92,7 +117,6 @@ app.use((req, res, next) => {
   if (!rateLimit(req)) return res.status(429).send("Çok fazla istek yolladınız. Lütfen biraz bekleyin.");
   next();
 });
-// ==============================================================================
 
 async function initDB() {
   let client;
@@ -123,7 +147,6 @@ async function fetchPlayers(retry = 2) {
     let players = [];
     const rows = $("table.CSS_Table_Example tr").length ? $("table.CSS_Table_Example tr") : $("table tr");
 
-    // 🛡️ GÜVENLİK SENSÖRÜ (BAŞLIK KONTROLÜ)
     const firstRowCols = $(rows[0]).find("td, th");
     const kHeader = $(firstRowCols[2]).text().toLowerCase();
     const dHeader = $(firstRowCols[4]).text().toLowerCase();
@@ -148,11 +171,10 @@ async function fetchPlayers(retry = 2) {
       });
     });
 
-    // ================= 3. GÜVENLİK: MANTIKSAL DOĞRULAMA (Sanity Check) =================
     const validPlayers = players.filter(p => {
-      if (!p.nick || p.nick.length > 32) return false; // 🛡️ Fix 4: Garbage nick koruması
+      if (!p.nick || p.nick.length > 32) return false;
       if (p.kills < 0 || p.deaths < 0 || p.damage < 0) return false;
-      if (p.kills > 150000 || p.deaths > 150000) return false; // İmkansız sayılar
+      if (p.kills > 150000 || p.deaths > 150000) return false;
       if (p.hsPercent < 0 || p.hsPercent > 100) return false;
       if (p.accuracy < 0 || p.accuracy > 100) return false;
       return true;
@@ -162,7 +184,6 @@ async function fetchPlayers(retry = 2) {
       throw new Error("KRİTİK HATA: Sütunlar karışmış veya mantıksız veriler var! Arşiv korumaya alındı.");
     }
     return validPlayers;
-    // ===================================================================================
 
   } catch (err) { if (retry > 0) return fetchPlayers(retry - 1); throw err; }
 }
@@ -201,6 +222,7 @@ async function fetchAndSave() {
     if (client) await client.query('ROLLBACK'); 
     console.error("Motor Hatası:", err.message);
     sendAlertMail(err.message); 
+    sendTelegramAlert(`❌ Motor Hatası: ${err.message}`);
   } 
   finally { if (client) client.release(); isRunning = false; }
 }
@@ -250,14 +272,12 @@ app.get("/", async (req, res) => {
       </script>
       <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>SEHRIN EFENDILERI</title>
-      
       <meta property="og:title" content="ŞEHRİN EFENDİLERİ | CS 1.6 İstatistik">
       <meta property="og:description" content="Sunucumuzun tüm zamanlar skor tabloları, K/D oranları ve detaylı istatistikleri. Sıralamanı hemen kontrol et!">
       <meta property="og:image" content="${logoUrl}">
       <meta property="og:url" content="https://cs16-stats.onrender.com/">
       <meta property="og:type" content="website">
       <meta name="theme-color" content="#38bdf8">
-      
       <link rel="icon" href="${logoUrl}">
       <style>
       body{ background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('${logoUrl}') no-repeat center center fixed; background-size: cover; color:white; font-family:'Segoe UI',sans-serif; margin:0; padding-bottom:50px; overflow-x:hidden; }
@@ -265,38 +285,10 @@ app.get("/", async (req, res) => {
       .main-title{font-size:clamp(28px,6vw,48px);font-weight:900;letter-spacing:3px;margin:0;text-shadow:0 0 20px rgba(56,189,248,0.6); color: #fff;}
       .ip-title{color:#38bdf8;font-size:clamp(18px,4vw,28px);margin:10px 0; font-weight: 600;}
       .content-wrapper{width:98%;max-width:1400px;margin:0 auto;}
-      
-      /* ✨ YENİ TASARIM: Dikkat Çekici Durum Paneli */
-      .status-board { 
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        justify-content: center; 
-        gap: 15px; 
-        background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9)); 
-        border: 2px solid #38bdf8; 
-        border-radius: 16px; 
-        padding: 25px; 
-        margin: 30px auto; 
-        max-width: 900px; 
-        box-shadow: 0 0 25px rgba(56, 189, 248, 0.2), inset 0 0 15px rgba(0,0,0,0.5);
-      }
-      .status-item { 
-        font-size: 18px; 
-        text-align: center; 
-        color: #e2e8f0; 
-      }
-      .status-item span { 
-        color: #facc15; 
-        font-weight: 800; 
-        font-size: 20px; 
-        text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
-      }
-      .status-item.update-time span {
-        color: #34d399;
-        text-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
-      }
-
+      .status-board { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9)); border: 2px solid #38bdf8; border-radius: 16px; padding: 25px; margin: 30px auto; max-width: 900px; box-shadow: 0 0 25px rgba(56, 189, 248, 0.2), inset 0 0 15px rgba(0,0,0,0.5); }
+      .status-item { font-size: 18px; text-align: center; color: #e2e8f0; }
+      .status-item span { color: #facc15; font-weight: 800; font-size: 20px; text-shadow: 0 0 10px rgba(250, 204, 21, 0.5); }
+      .status-item.update-time span { color: #34d399; text-shadow: 0 0 10px rgba(52, 211, 153, 0.5); }
       .desktop-tip { display: none; text-align: center; background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.4); padding: 12px 15px; margin: 0 auto 20px; border-radius: 8px; font-size: 14px; color: #fde047; max-width: 95%; }
       .search{text-align:center;margin:30px 0; display:flex; justify-content:center; gap:10px; flex-wrap: wrap;}
       input{padding:16px;border-radius:8px;border:2px solid #334155;width:55%;background:rgba(30, 41, 59, 0.8);color:white;outline:none;font-size:16px; transition: 0.3s;}
@@ -305,35 +297,28 @@ app.get("/", async (req, res) => {
       button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(14, 165, 233, 0.4); }
       .reset-btn { padding: 16px 25px; border-radius: 8px; background: rgba(30, 41, 59, 0.9); border: 2px solid #ef4444; color: #ef4444; font-weight: bold; text-decoration: none; font-size: 15px; display:flex; align-items:center; justify-content:center; transition: 0.3s;}
       .reset-btn:hover { background: #ef4444; color: white; }
-
       .table-container{ width:100%; overflow-x:auto; background:rgba(15, 23, 42, 0.95); border-radius:12px; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
       table{width:100%; border-collapse:collapse; table-layout: fixed; min-width: 800px;}
       th, td { border-bottom: 1px solid #1e293b; padding: 16px 10px; text-align: center; font-size: 15px; }
-      
       th.sortable { background: #020617; color:#38bdf8; text-transform:uppercase; font-size:14px; font-weight: 800; letter-spacing: 1px; cursor: pointer; position: relative; padding-right: 20px; transition: 0.2s; user-select: none; border-bottom: 2px solid #334155;}
       th.sortable:hover { background: rgba(56, 189, 248, 0.15); color: #fff; }
       th.sortable::after { content: '↕'; position: absolute; right: 8px; color: #64748b; font-size: 14px; }
       th.sortable.asc::after { content: '▲'; color: #38bdf8; }
       th.sortable.desc::after { content: '▼'; color: #38bdf8; }
-
       tr:hover td { background: rgba(56, 189, 248, 0.15) !important; }
       tr:nth-child(even) td { background: rgba(30, 41, 59, 0.3); }
-      
       .row-rank-1 { background: rgba(250, 204, 21, 0.12) !important; border-left: 4px solid #facc15; }
       .row-rank-2 { background: rgba(226, 232, 240, 0.1) !important; border-left: 4px solid #e2e8f0; }
       .row-rank-3 { background: rgba(253, 186, 116, 0.1) !important; border-left: 4px solid #fdba74; }
-      
       .player-nick{ color:#e0f2fe; font-weight:600; text-align: left; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; font-size: 16px;}
       .rank-badge { display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; min-width: 55px; border-radius: 8px; font-weight: 900; font-size: 15px; gap: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
       .rank-1 { background: linear-gradient(135deg, #facc15, #eab308); color: #422006; border: 1px solid #fef08a; }
       .rank-2 { background: linear-gradient(135deg, #e2e8f0, #94a3b8); color: #0f172a; border: 1px solid #f8fafc; }
       .rank-3 { background: linear-gradient(135deg, #fdba74, #ea580c); color: #431407; border: 1px solid #fed7aa; }
-      
       .pagination { display: flex; justify-content: center; gap: 15px; margin: 40px 0; align-items: center; }
       .pagination a { background: rgba(30, 41, 59, 0.9); border: 2px solid #38bdf8; color: #38bdf8; padding: 12px 25px; border-radius: 8px; font-weight: bold; text-decoration: none; transition: 0.3s;}
       .pagination a:hover { background: #38bdf8; color: #020617; }
       .pagination span { background: #020617; border: 2px solid #1e293b; color: white; padding: 12px 25px; border-radius: 8px; font-weight: bold; }
-      
       @media (max-width: 768px) {
         .status-board { padding: 15px; margin: 20px 10px; }
         .status-item { font-size: 15px; }
@@ -348,20 +333,16 @@ app.get("/", async (req, res) => {
       </style></head><body>
       <div class="header-container"><h1 class="main-title">SEHRIN EFENDILERI</h1><div class="ip-title">(95.173.173.81)</div></div>
       <div class="content-wrapper">
-        
         <div class="status-board">
           <div class="status-item">⚠️ Veriler <span>06.04.2026</span> tarihinden itibaren kaydedilmektedir.</div>
           <div class="status-item update-time">Sıralama verileri en son <span>${lastUpdateDate}</span> tarihinde güncellendi.</div>
         </div>
-
         <div class="desktop-tip">💡 <b>İpucu:</b> Verilere daha detaylı bakabilmek için tarayıcı ayarlarından <b>"Masaüstü sitesi"</b> seçeneğini işaretleyebilirsiniz.</div>
-        
         <form class="search" method="GET">
           <input name="search" placeholder="Aranacak nicki giriniz..." value="${escapeHTML(search)}">
           <button type="submit">Oyuncu Ara</button>
           ${search ? `<a href="/" class="reset-btn">Temizle</a>` : ''}
         </form>
-
         <div class="table-container"><table>
         <thead>
           <tr>
@@ -380,22 +361,18 @@ app.get("/", async (req, res) => {
           const r = parseInt(p.real_rank);
           let rankDisplay = `<b>${r}</b>`;
           let rowClass = '';
-          
           if (r === 1) { rankDisplay = `<span class="rank-badge rank-1">🥇 1</span>`; rowClass = 'row-rank-1'; }
           else if (r === 2) { rankDisplay = `<span class="rank-badge rank-2">🥈 2</span>`; rowClass = 'row-rank-2'; }
           else if (r === 3) { rankDisplay = `<span class="rank-badge rank-3">🥉 3</span>`; rowClass = 'row-rank-3'; }
-          
           return `<tr class="${rowClass}"><td>${rankDisplay}</td><td><span class="player-nick">${escapeHTML(p.nick)}</span></td><td>${p.total_kills}</td><td>${p.total_deaths}</td><td>${kd.toFixed(2)}</td><td>${p.total_damage}</td><td><b style="color:#38bdf8; font-size: 16px;">${Math.round(p.score)}</b></td></tr>`;
         }).join('')}
         </tbody></table></div>
-        
         <div class="pagination">
           ${page > 1 ? `<a href="/?page=${page - 1}${search ? '&search='+search : ''}">« Önceki Sayfa</a>` : ''}
           <span>Sayfa ${page} / ${totalPages}</span>
           ${page < totalPages ? `<a href="/?page=${page + 1}${search ? '&search='+search : ''}">Sonraki Sayfa »</a>` : ''}
         </div>
       </div>
-      
       <script>
         document.addEventListener('DOMContentLoaded', function() {
           const headers = document.querySelectorAll('th.sortable');
@@ -406,29 +383,21 @@ app.get("/", async (req, res) => {
               const rows = Array.from(tbody.querySelectorAll('tr'));
               const index = Array.from(th.parentNode.children).indexOf(th);
               const isAscending = th.classList.contains('asc');
-
               headers.forEach(h => h.classList.remove('asc', 'desc'));
               th.classList.add(isAscending ? 'desc' : 'asc');
-
               rows.sort((a, b) => {
                 const aText = a.children[index].innerText.trim();
                 const bText = b.children[index].innerText.trim();
-                
                 const aNum = parseFloat(aText.replace(/[^0-9.-]+/g,""));
                 const bNum = parseFloat(bText.replace(/[^0-9.-]+/g,""));
-
-                if (!isNaN(aNum) && !isNaN(bNum)) {
-                  return isAscending ? aNum - bNum : bNum - aNum;
-                }
+                if (!isNaN(aNum) && !isNaN(bNum)) { return isAscending ? aNum - bNum : bNum - aNum; }
                 return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
               });
-
               rows.forEach(row => tbody.appendChild(row));
             });
           });
         });
       </script>
-      
       </body></html>`;
     cache[cacheKey] = { data: html, time: Date.now() }; res.send(html);
   } catch (err) { res.status(500).send("Hata."); }
@@ -436,27 +405,15 @@ app.get("/", async (req, res) => {
 
 // ================= BETTER STACK HEALTHCHECK ENTEGRASYONU =================
 app.get("/health", async (req, res) => {
-  try {
-    // 1. Veritabanına test sorgusu atarak PostgreSQL erişimini kontrol et
-    await pool.query('SELECT 1');
-    
-    // 2. Her şey yolundaysa 200 OK ve JSON dön
-    res.status(200).json({ 
-      status: "ok", 
-      database: "connected",
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    // 3. Veritabanı veya sunucu hatası varsa 500 dön ve logla
-    console.error("Healthcheck Hatası:", error.message);
-    res.status(500).json({ 
-      status: "error", 
-      database: "disconnected", 
-      error: error.message 
-    });
-  }
+  try { await pool.query('SELECT 1'); res.status(200).json({ status: "ok" }); }
+  catch (error) { res.status(500).json({ status: "error" }); }
 });
-// =========================================================================
+
+app.get("/test-telegram", async (req, res) => {
+  if (req.headers['x-api-key'] !== ADMIN_KEY) return res.status(403).send("Erişim Reddedildi");
+  await sendTelegramAlert("✅ Telegram entegrasyonu başarılı!");
+  res.send("Telegram bildirim testi gönderildi.");
+});
 
 // ================= 5. YÖNETİM LİNKLERİ =================
 const adminLayout = (title, message, subMessage) => `
