@@ -280,7 +280,7 @@ app.get("/", async (req, res) => {
       <meta name="theme-color" content="#38bdf8">
       <link rel="icon" href="${logoUrl}">
       <style>
-      body{ background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('${logoUrl}') no-repeat center center fixed; background-size: cover; color:white; font-family:'Segoe UI',sans-serif; margin:0; padding-bottom:50px; overflow-x:hidden; }
+      body{ background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('${logoUrl}') no-repeat center center fixed; background-size: cover; color:white; font-family:'Segoe UI',sans-serif; margin:0; padding-bottom:50px; overflow-x: clip; }
       .header-container{text-align:center;padding:40px 10px 20px;background:rgba(2, 6, 23, 0.7);}
       .main-title{font-size:clamp(28px,6vw,48px);font-weight:900;letter-spacing:3px;margin:0;text-shadow:0 0 20px rgba(56,189,248,0.6); color: #fff;}
       .ip-title{color:#38bdf8;font-size:clamp(18px,4vw,28px);margin:10px 0; font-weight: 600;}
@@ -298,14 +298,13 @@ app.get("/", async (req, res) => {
       .reset-btn { padding: 16px 25px; border-radius: 8px; background: rgba(30, 41, 59, 0.9); border: 2px solid #ef4444; color: #ef4444; font-weight: bold; text-decoration: none; font-size: 15px; display:flex; align-items:center; justify-content:center; transition: 0.3s;}
       .reset-btn:hover { background: #ef4444; color: white; }
       
-      /* 🛠️ Masaüstünde overflow iptal edildi (Yapışkan başlık çalışsın diye), sadece genişlik ve arka plan korundu */
-      .table-container{ width:100%; background:rgba(15, 23, 42, 0.95); border-radius:12px; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: visible; }
+      .table-container{ width:100%; overflow-x:auto; background:rgba(15, 23, 42, 0.95); border-radius:12px; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
       table{width:100%; border-collapse:collapse; table-layout: fixed; min-width: 800px;}
       th, td { border-bottom: 1px solid #1e293b; padding: 16px 10px; text-align: center; font-size: 15px; }
       
-      /* 📌 Yapışkan Başlık (Sticky Header) Ayarları */
+      /* 📌 Sticky Header */
       thead { position: sticky; top: 0; z-index: 101; }
-      th.sortable { position: sticky; top: 0; background: #020617; color:#38bdf8; text-transform:uppercase; font-size:14px; font-weight: 800; letter-spacing: 1px; cursor: pointer; padding-right: 20px; transition: 0.2s; user-select: none; border-bottom: 2px solid #334155; z-index: 101;}
+      th.sortable { position: sticky; top: 0; background: #020617; color:#38bdf8; text-transform:uppercase; font-size:14px; font-weight: 800; letter-spacing: 1px; cursor: pointer; padding-right: 20px; transition: 0.2s; user-select: none; border-bottom: 2px solid #334155; z-index: 101; }
       th.sortable:hover { background: rgba(56, 189, 248, 0.15); color: #fff; }
       th.sortable::after { content: '↕'; position: absolute; right: 8px; color: #64748b; font-size: 14px; }
       th.sortable.asc::after { content: '▲'; color: #38bdf8; }
@@ -332,10 +331,10 @@ app.get("/", async (req, res) => {
         .status-item span { font-size: 16px; }
         .desktop-tip { display: block; }
         input { width: 100%; }
-        /* 📱 Mobilde tablonun sağa sola kayabilmesi için overflow sadece burada aktif ediliyor */
-        .table-container { overflow-x: auto; }
-        th:nth-child(2), td:nth-child(2) { position: sticky !important; left: 0 !important; z-index: 99 !important; background: #0f172a !important; width: 140px !important; box-shadow: 3px 0 10px rgba(0,0,0,0.6); border-right: 1px solid #334155;}
-        th:nth-child(2) { z-index: 102 !important; top: 0 !important; }
+        
+        /* 📱 Mobilde Sola Yapışan Sütun (z-index ve sticky kontrolü) */
+        th:nth-child(2), td:nth-child(2) { position: sticky !important; left: 0 !important; z-index: 102 !important; background: #0f172a !important; width: 140px !important; box-shadow: 3px 0 10px rgba(0,0,0,0.6); border-right: 1px solid #334155;}
+        th:nth-child(2) { z-index: 103 !important; top: 0 !important; }
         tr:hover td:nth-child(2) { background: #1e293b !important; }
         .pagination { flex-direction: column; width: 90%; margin: 20px auto; gap: 10px; }
       }
