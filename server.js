@@ -297,20 +297,14 @@ app.get("/", async (req, res) => {
       button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(14, 165, 233, 0.4); }
       .reset-btn { padding: 16px 25px; border-radius: 8px; background: rgba(30, 41, 59, 0.9); border: 2px solid #ef4444; color: #ef4444; font-weight: bold; text-decoration: none; font-size: 15px; display:flex; align-items:center; justify-content:center; transition: 0.3s;}
       .reset-btn:hover { background: #ef4444; color: white; }
-      
-      /* 🛠️ Masaüstü ve mobilde genişliği koruyan, dikey kilit buster kuralı */
-      .table-container{ width:100%; overflow-x:auto; background:rgba(15, 23, 42, 0.95); border-radius:12px; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow-y: visible !important; }
+      .table-container{ width:100%; overflow-x:auto; background:rgba(15, 23, 42, 0.95); border-radius:12px; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
       table{width:100%; border-collapse:collapse; table-layout: fixed; min-width: 800px;}
       th, td { border-bottom: 1px solid #1e293b; padding: 16px 10px; text-align: center; font-size: 15px; }
-      
-      /* 📌 KESİN ÇÖZÜM: Yapışkanlığı thead yerine th elementlerine doğrudan verip, arka planı çakıyoruz */
-      thead th { position: sticky !important; top: 0 !important; background: #020617 !important; z-index: 500 !important; }
-      th.sortable { background: #020617; color:#38bdf8; text-transform:uppercase; font-size:14px; font-weight: 800; letter-spacing: 1px; cursor: pointer; padding-right: 20px; transition: 0.2s; user-select: none; border-bottom: 2px solid #334155; }
+      th.sortable { background: #020617; color:#38bdf8; text-transform:uppercase; font-size:14px; font-weight: 800; letter-spacing: 1px; cursor: pointer; position: relative; padding-right: 20px; transition: 0.2s; user-select: none; border-bottom: 2px solid #334155;}
       th.sortable:hover { background: rgba(56, 189, 248, 0.15); color: #fff; }
       th.sortable::after { content: '↕'; position: absolute; right: 8px; color: #64748b; font-size: 14px; }
       th.sortable.asc::after { content: '▲'; color: #38bdf8; }
       th.sortable.desc::after { content: '▼'; color: #38bdf8; }
-      
       tr:hover td { background: rgba(56, 189, 248, 0.15) !important; }
       tr:nth-child(even) td { background: rgba(30, 41, 59, 0.3); }
       .row-rank-1 { background: rgba(250, 204, 21, 0.12) !important; border-left: 4px solid #facc15; }
@@ -325,22 +319,14 @@ app.get("/", async (req, res) => {
       .pagination a { background: rgba(30, 41, 59, 0.9); border: 2px solid #38bdf8; color: #38bdf8; padding: 12px 25px; border-radius: 8px; font-weight: bold; text-decoration: none; transition: 0.3s;}
       .pagination a:hover { background: #38bdf8; color: #020617; }
       .pagination span { background: #020617; border: 2px solid #1e293b; color: white; padding: 12px 25px; border-radius: 8px; font-weight: bold; }
-      
       @media (max-width: 768px) {
         .status-board { padding: 15px; margin: 20px 10px; }
         .status-item { font-size: 15px; }
         .status-item span { font-size: 16px; }
         .desktop-tip { display: block; }
         input { width: 100%; }
-        
-        /* Mobilde Nick sütun verilerini sola çivileyen kural */
-        td:nth-child(2) { position: sticky !important; left: 0 !important; z-index: 99 !important; background: #0f172a !important; width: 140px !important; box-shadow: 3px 0 10px rgba(0,0,0,0.6); border-right: 1px solid #334155;}
-        
-        /* 📱 MOBİL NAKAVT: Kesişim kümesindeki Nick başlığı hem SOLA hem de YUKARIYA kilitleniyor, katman üstünlüğü 1001 yapıldı */
-        th:nth-child(1) { position: sticky !important; top: 0 !important; z-index: 1000 !important; background: #020617 !important; }
-        th:nth-child(2) { position: sticky !important; left: 0 !important; top: 0 !important; z-index: 1001 !important; background: #0f172a !important; width: 140px !important; box-shadow: 3px 0 10px rgba(0,0,0,0.6); border-right: 1px solid #334155; }
-        th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7) { position: sticky !important; top: 0 !important; z-index: 1000 !important; background: #020617 !important; }
-        
+        th:nth-child(2), td:nth-child(2) { position: sticky !important; left: 0 !important; z-index: 99 !important; background: #0f172a !important; width: 140px !important; box-shadow: 3px 0 10px rgba(0,0,0,0.6); border-right: 1px solid #334155;}
+        th:nth-child(2) { z-index: 100 !important; }
         tr:hover td:nth-child(2) { background: #1e293b !important; }
         .pagination { flex-direction: column; width: 90%; margin: 20px auto; gap: 10px; }
       }
