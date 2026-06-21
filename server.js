@@ -44,7 +44,7 @@ const sendAlertMail = async (errorMsg) => {
   const mailOptions = {
     from: '"Şehrin Efendileri Sistem" <leventistemi@gmail.com>',
     to: "leventistemi@gmail.com",
-    subject: "⚠️ SİSTEM ARIZA BİLDİRİMİ - SEHRIN EFENDILERI",
+    subject: "⚠️ SİSTEM ARIZA BİLDİRİMİ - ŞEHRİN EFENDİLERİ",
     text: `Merhaba Levent, sistemde bir hata oluştu.\n\nHata Detayı: ${errorMsg}\n\nZaman: ${new Date().toLocaleString("tr-TR", {timeZone: "Europe/Istanbul"})}`
   };
   try { 
@@ -65,7 +65,7 @@ const sendTelegramAlert = async (message) => {
   try {
     await axios.post(url, {
       chat_id: TELEGRAM_CHAT_ID,
-      text: `🚨 SEHRIN EFENDILERI - BİLDİRİM\n\n${message}\n\nZaman: ${new Date().toLocaleString("tr-TR", {timeZone: "Europe/Istanbul"})}`
+      text: `🚨 ŞEHRİN EFENDİLERİ - BİLDİRİM\n\n${message}\n\nZaman: ${new Date().toLocaleString("tr-TR", {timeZone: "Europe/Istanbul"})}`
     });
   } catch (e) {
     console.error("Telegram mesajı gönderilemedi:", e.message);
@@ -271,7 +271,7 @@ app.get("/", async (req, res) => {
         gtag('config', 'G-EGWK9NSWZ2');
       </script>
       <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>SEHRIN EFENDILERI</title>
+      <title>ŞEHRİN EFENDİLERİ</title>
       <meta property="og:title" content="ŞEHRİN EFENDİLERİ | CS 1.6 İstatistik">
       <meta property="og:description" content="Sunucumuzun tüm zamanlar skor tabloları, K/D oranları ve detaylı istatistikleri. Sıralamanı hemen kontrol et!">
       <meta property="og:image" content="${logoUrl}">
@@ -331,7 +331,7 @@ app.get("/", async (req, res) => {
         .pagination { flex-direction: column; width: 90%; margin: 20px auto; gap: 10px; }
       }
       </style></head><body>
-      <div class="header-container"><h1 class="main-title">SEHRIN EFENDILERI</h1><div class="ip-title">(95.173.173.81)</div></div>
+      <div class="header-container"><h1 class="main-title">ŞEHRİN EFENDİLERİ</h1><div class="ip-title">(95.173.173.81)</div></div>
       <div class="content-wrapper">
         <div class="status-board">
           <div class="status-item">⚠️ Veriler <span>06.04.2026</span> tarihinden itibaren kaydedilmektedir.</div>
