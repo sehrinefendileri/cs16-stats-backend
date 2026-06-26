@@ -319,6 +319,17 @@ app.get("/", async (req, res) => {
       .pagination a { background: rgba(30, 41, 59, 0.9); border: 2px solid #38bdf8; color: #38bdf8; padding: 12px 25px; border-radius: 8px; font-weight: bold; text-decoration: none; transition: 0.3s;}
       .pagination a:hover { background: #38bdf8; color: #020617; }
       .pagination span { background: #020617; border: 2px solid #1e293b; color: white; padding: 12px 25px; border-radius: 8px; font-weight: bold; }
+      
+      /* --- YENİ EKLENEN PREMİUM BİLGİ KARTI CSS --- */
+      .skor-bilgi-karti { display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9)); border: 2px solid #38bdf8; border-radius: 16px; padding: 16px 25px; margin: 0 auto 30px auto; max-width: 900px; box-shadow: 0 0 25px rgba(56, 189, 248, 0.2), inset 0 0 15px rgba(0,0,0,0.5); text-align: center; }
+      .skor-baslik { color: #fff; font-size: 18px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+      .skor-baslik span.icon { font-size: 22px; }
+      .skor-aciklama { color: #cbd5e1; font-size: 15px; line-height: 1.6; }
+      .net-kill { color: #facc15; font-weight: 700; }
+      .kd-oran { color: #38bdf8; font-weight: 700; }
+      .hs-yuzde { color: #34d399; font-weight: 700; }
+      .toplam-hasar { color: #fb7185; font-weight: 700; }
+
       @media (max-width: 768px) {
         .status-board { padding: 15px; margin: 20px 10px; }
         .status-item { font-size: 15px; }
@@ -329,6 +340,8 @@ app.get("/", async (req, res) => {
         th:nth-child(2) { z-index: 100 !important; }
         tr:hover td:nth-child(2) { background: #1e293b !important; }
         .pagination { flex-direction: column; width: 90%; margin: 20px auto; gap: 10px; }
+        /* Mobil Bilgi Kartı Düzenlemesi */
+        .skor-bilgi-karti { padding: 15px; margin: 0 10px 25px 10px; }
       }
       </style></head><body>
       <div class="header-container"><h1 class="main-title">ŞEHRİN EFENDİLERİ</h1><div class="ip-title">(95.173.173.81)</div></div>
@@ -343,9 +356,14 @@ app.get("/", async (req, res) => {
           <button type="submit">Oyuncu Ara</button>
           ${search ? `<a href="/" class="reset-btn">Temizle</a>` : ''}
         </form>
-        <div style="text-align: center; color: #cbd5e1; font-size: 14px; margin: 0 auto 20px auto; padding: 15px; max-width: 900px; background: rgba(56, 189, 248, 0.08); border-left: 4px solid #38bdf8; border-radius: 4px;">
-          ℹ️ <b>Skor Nasıl Hesaplanır?</b> <span style="color: #94a3b8;">Net Öldürme (Öldürme − Ölüm), K/D oranı, HS yüzdesi ve toplam hasar dikkate alınarak hesaplanır.</span>
+
+        <div class="skor-bilgi-karti">
+          <div class="skor-baslik"><span class="icon">ℹ️</span> Skor Nasıl Hesaplanır?</div>
+          <div class="skor-aciklama">
+            <span class="net-kill">Net Öldürme</span> (Öldürme − Ölüm), <span class="kd-oran">K/D oranı</span>, <span class="hs-yuzde">HS yüzdesi</span> ve <span class="toplam-hasar">toplam hasar</span> dikkate alınarak hesaplanır.
+          </div>
         </div>
+
         <div class="table-container"><table>
         <thead>
           <tr>
