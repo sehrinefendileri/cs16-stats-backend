@@ -367,6 +367,9 @@ app.get("/", async (req, res) => {
           return `<tr class="${rowClass}"><td>${rankDisplay}</td><td><span class="player-nick">${escapeHTML(p.nick)}</span></td><td>${p.total_kills}</td><td>${p.total_deaths}</td><td>${kd.toFixed(2)}</td><td>${p.total_damage}</td><td><b style="color:#38bdf8; font-size: 16px;">${Math.round(p.score)}</b></td></tr>`;
         }).join('')}
         </tbody></table></div>
+        <div style="text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 10px; padding: 10px; background: rgba(30, 41, 59, 0.4); border-radius: 8px;">
+  ℹ️ <b>Skor Nasıl Hesaplanır?</b> Net Öldürme (Öldürme − Ölüm), K/D oranı, HS yüzdesi ve toplam hasar dikkate alınarak hesaplanır.
+</div>
         <div class="pagination">
           ${page > 1 ? `<a href="/?page=${page - 1}${search ? '&search='+search : ''}">« Önceki Sayfa</a>` : ''}
           <span>Sayfa ${page} / ${totalPages}</span>
