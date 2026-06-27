@@ -14,6 +14,7 @@ if (missingEnvs.length > 0) {
 }
 
 const app = express();
+app.use(express.static(__dirname));
 app.set('trust proxy', 1); // 🛡️ Fix 2: Sahte IP (x-forwarded-for spoof) koruması
 
 const pool = new Pool({
@@ -278,7 +279,7 @@ app.get("/", async (req, res) => {
       <meta property="og:url" content="https://cs16-stats.onrender.com/">
       <meta property="og:type" content="website">
       <meta name="theme-color" content="#38bdf8">
-      <link rel="icon" href="${logoUrl}">
+      <link rel="icon" type="image/jpeg" href="/background.jpeg">
       <style>
       body{ background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('${logoUrl}') no-repeat center center fixed; background-size: cover; color:white; font-family:'Segoe UI',sans-serif; margin:0; padding-bottom:50px; overflow-x:hidden; }
       .header-container{text-align:center;padding:40px 10px 20px;background:rgba(2, 6, 23, 0.7);}
@@ -439,7 +440,7 @@ app.get("/test-telegram", async (req, res) => {
 // ================= 5. YÖNETİM LİNKLERİ =================
 const adminLayout = (title, message, subMessage) => `
   <html><head><meta charset="UTF-8"><title>${title}</title>
-  <link rel="icon" href="${logoUrl}">
+  <link rel="icon" type="image/jpeg" href="/background.jpeg">
   <style>
     body{ background: #020617; color:white; font-family:'Segoe UI',sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
     .card{ background: rgba(15, 23, 42, 0.95); border: 1px solid #38bdf8; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 0 30px rgba(56, 189, 248, 0.2); max-width: 500px; }
