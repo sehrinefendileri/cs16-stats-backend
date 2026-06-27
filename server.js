@@ -359,7 +359,7 @@ app.get("/", async (req, res) => {
         </form>
 
         <div class="skor-bilgi-karti">
-          <div class="skor-baslik"><span class="icon">ℹ️</span> Skor Nasıl Hesaplanır?</div>
+          <div class="skor-baslik"><span class="icon"></span> Skor Nasıl Hesaplanır?</div>
           <div class="skor-aciklama">
             <span class="net-kill">Net Öldürme</span> (Öldürme − Ölüm), <span class="kd-oran">K/D oranı</span>, <span class="hs-yuzde">HS yüzdesi</span> ve <span class="toplam-hasar">toplam hasar</span> dikkate alınarak hesaplanır.
           </div>
