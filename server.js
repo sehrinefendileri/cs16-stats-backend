@@ -119,6 +119,56 @@ app.use((req, res, next) => {
   next();
 });
 
+let top3Cache = {
+  data: null,
+  time: 0
+};
+
+app.get("/api/top3", async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "https://sehrinefendileri.com");
+  res.setHeader("Access-Control-Allow-Methods", "GET");
+  res.setHeader("Cache-Control", "public, max-age=60");
+
+  try {
+    if (top3Cache.data && Date.now() - top3Cache.time < 30000) {
+      return res.json(top3Cache.data);
+    }
+
+    const result = await pool.query(`
+      SELECT nick
+      FROM (
+        SELECT nick,
+          (
+            ((total_kills - total_deaths) * 1.0) +
+            ((total_kills::float / GREATEST(total_deaths, 1)) * 5.0) +
+            (hs_percent * 1.5) +
+            (total_damage / 1000.0)
+          ) AS score
+        FROM players
+      ) ranked
+      ORDER BY score DESC
+      LIMIT 3
+    `);
+
+    const data = {
+      players: result.rows.map(row => row.nick)
+    };
+
+    top3Cache = {
+      data,
+      time: Date.now()
+    };
+
+    res.json(data);
+  } catch (err) {
+    console.error("Top 3 API hatası:", err.message);
+    res.status(500).json({
+      players: [],
+      error: "Top 3 verileri alınamadı."
+    });
+  }
+});
+
 async function initDB() {
   let client;
   try {
