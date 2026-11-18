@@ -10,8 +10,8 @@ const IS_PRODUCTION = NODE_ENV === "production";
 const DISABLE_EXTERNAL_NOTIFICATIONS =
   process.env.DISABLE_EXTERNAL_NOTIFICATIONS === "true";
 
-const EMAIL_USER = "leventistemi@gmail.com";
-const EMAIL_TO = "leventistemi@gmail.com";
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_TO = process.env.EMAIL_TO;
 
 const EMAIL_PASS = process.env.EMAIL_PASS;
 
@@ -34,8 +34,8 @@ function getTransporter() {
     return null;
   }
 
-  if (!EMAIL_PASS) {
-    throw new Error("EMAIL_PASS tanımlanmamış.");
+  if (!EMAIL_USER || !EMAIL_TO || !EMAIL_PASS) {
+    throw new Error("EMAIL_USER, EMAIL_TO veya EMAIL_PASS tanımlanmamış.");
   }
 
   if (!transporter) {

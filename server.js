@@ -65,6 +65,7 @@ if (IS_RENDER) {
 
 const NODE_ENV = process.env.NODE_ENV;
 const IS_PRODUCTION = NODE_ENV === "production";
+const ENABLE_SCRAPER = process.env.ENABLE_SCRAPER !== "false";
 
 if (!["development", "test", "production"].includes(NODE_ENV)) {
   console.error(
@@ -84,7 +85,11 @@ const requiredEnvs = [
 ];
 
 if (IS_PRODUCTION) {
-  requiredEnvs.push("EMAIL_PASS");
+  requiredEnvs.push(
+    "EMAIL_USER",
+    "EMAIL_TO",
+    "EMAIL_PASS"
+  );
 }
 
 const missingEnvs = requiredEnvs.filter(
@@ -296,7 +301,9 @@ async function startServer() {
 
       console.log(`🌍 Ortam: ${NODE_ENV}`);
 
-      if (IS_PRODUCTION) {
+      if (IS_PRODUCTION && ENABLE_SCRAPER) {
+        console.log("⚔️ Scraper ve otomatik zamanlayıcılar aktif.");
+
         // İlk veri güncellemesi.
         fetchAndSave().catch((err) => {
           console.error(
@@ -307,6 +314,9 @@ async function startServer() {
 
         // Otomatik zamanlayıcılar.
         startSchedulers();
+
+      } else if (IS_PRODUCTION) {
+        console.log("🛡️ Scraper ve otomatik zamanlayıcılar devre dışı.");
 
       } else {
         console.log(
