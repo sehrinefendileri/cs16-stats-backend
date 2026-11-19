@@ -11,13 +11,13 @@ document.addEventListener("DOMContentLoaded", function() {
             th.parentNode.children
           ).indexOf(th);
 
-          const isAscending = th.classList.contains("asc");
+          const isAscending = th.classList.contains("desc");
 
           headers.forEach(header => {
             header.classList.remove("asc", "desc");
           });
 
-          th.classList.add(isAscending ? "desc" : "asc");
+          th.classList.add(isAscending ? "asc" : "desc");
 
           const numericColumns = [0, 2, 3, 4, 5, 6];
 
